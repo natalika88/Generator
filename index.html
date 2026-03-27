@@ -51,6 +51,41 @@
         border-radius: 14px;
         padding: 18px 18px;
       }
+      .generator-title {
+        font-weight: 700;
+        color: var(--accent);
+        margin-bottom: 10px;
+      }
+      .generator {
+        margin-bottom: 14px;
+      }
+      .generator-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+      .btn {
+        background: rgba(106, 166, 255, 0.14);
+        border: 1px solid rgba(106, 166, 255, 0.35);
+        color: var(--text);
+        padding: 10px 12px;
+        border-radius: 12px;
+        cursor: pointer;
+        font-weight: 700;
+      }
+      .btn:hover {
+        background: rgba(106, 166, 255, 0.22);
+      }
+      .btn:active {
+        transform: translateY(1px);
+      }
+      .hint {
+        margin: 0;
+        color: var(--muted);
+        font-size: 12px;
+      }
       ol {
         margin: 10px 0 0;
         padding-left: 20px;
@@ -108,10 +143,20 @@
       </div>
 
       <div class="card">
+        <div class="generator">
+          <div class="generator-title">Интерактивный генератор</div>
+          <div class="generator-actions">
+            <button class="btn" type="button" id="btn-posts">Сгенерировать идеи постов (5)</button>
+            <button class="btn" type="button" id="btn-stories">Сгенерировать идеи сторис (3)</button>
+            <button class="btn" type="button" id="btn-week">Сгенерировать план на неделю</button>
+          </div>
+          <p class="hint">Идеи подставляются случайно из набора шаблонов. Формулировки можно потом подстроить под нишу.</p>
+        </div>
+
         <ol>
           <li>
             <div class="section-title">5 идей постов для экспертов</div>
-            <ul>
+            <ul id="post-ideas-list">
               <li>
                 <strong>Разбор кейса:</strong> “Как мы решили проблему X и почему это сработало”
                 <div class="tag">полезно + доверие</div>
@@ -137,7 +182,7 @@
 
           <li>
             <div class="section-title">3 идеи сторис на сегодня</div>
-            <ul>
+            <ul id="story-ideas-list">
               <li><strong>Опрос:</strong> “Что актуальнее сейчас: X или Y?”</li>
               <li><strong>Короткий инсайт:</strong> “1 ошибка, из-за которой вы недополучаете результат (и как исправить)”</li>
               <li><strong>Бэкстейдж:</strong> “Как проходит ваш рабочий процесс: 3 кадра за 10 секунд”</li>
@@ -146,7 +191,7 @@
 
           <li>
             <div class="section-title">Контент-план на неделю</div>
-            <table class="week" aria-label="Контент план на неделю">
+            <table class="week" id="week-plan" aria-label="Контент план на неделю">
               <thead>
                 <tr>
                   <th>День</th>
@@ -197,6 +242,93 @@
         <footer>Можно менять формулировки под вашу нишу: структура готова.</footer>
       </div>
     </div>
+
+    <script>
+      // Простая локальная логика “генератора” без библиотек.
+      function shuffle(arr) {
+        const a = arr.slice();
+        for (let i = a.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+      }
+
+      const postIdeas = [
+        { html: '<strong>Разбор кейса:</strong> “Как мы решили проблему X и почему это сработало”', tag: 'полезно + доверие' },
+        { html: '<strong>Чек-лист:</strong> “5 ошибок, из-за которых клиенты теряют деньги/время в теме Y”', tag: 'структура + сохранения' },
+        { html: '<strong>Миф vs факт:</strong> “Почему представление Z не работает и что делать вместо него”', tag: 'контраргументы' },
+        { html: '<strong>Метод/фреймворк:</strong> “Модель из 3 шагов для результата в теме A”', tag: 'обучение' },
+        { html: '<strong>Ответ на боль аудитории:</strong> “Что спрашивать у подрядчиков/специалистов, чтобы не ошибиться”', tag: 'практика' },
+        { html: '<strong>Инструкция:</strong> “Пошаговый план: как начать в теме B за 30 минут”', tag: 'простота + действие' },
+        { html: '<strong>Сравнение:</strong> “Подход X vs Y: какой выбрать и почему”', tag: 'выбор + ясность' },
+        { html: '<strong>Разбор цифр:</strong> “Какие метрики важны в теме C и как их читать”', tag: 'цифры + экспертиза' },
+        { html: '<strong>История провала:</strong> “Что пошло не так и как мы исправили за неделю”', tag: 'честность + опыт' },
+        { html: '<strong>FAQ пост:</strong> “10 вопросов от новичков в теме D — короткие ответы”', tag: 'вовлечение' }
+      ];
+
+      const storyIdeas = [
+        { html: '<strong>Опрос:</strong> “Что актуальнее сейчас: X или Y?”' },
+        { html: '<strong>Короткий инсайт:</strong> “1 ошибка, из-за которой вы недополучаете результат (и как исправить)”' },
+        { html: '<strong>Бэкстейдж:</strong> “Как проходит ваш рабочий процесс: 3 кадра за 10 секунд”' },
+        { html: '<strong>Мини-квиз:</strong> “Угадайте: что даст максимальный эффект в теме A?”' },
+        { html: '<strong>До/после:</strong> “Как меняется результат, если сделать X правильно”' },
+        { html: '<strong>Разбор возражения:</strong> “Почему фраза ‘это не работает’ — обычно миф”' },
+        { html: '<strong>Вопрос подписчика:</strong> “Ответ на запрос: что проверить перед стартом?”' },
+        { html: '<strong>Тизер поста:</strong> “Завтра разберу тему Z — вот какой главный вывод”' }
+      ];
+
+      const weekPosts = [
+        'Пост-разбор кейса: “Путь от проблемы до результата”',
+        'Чек-лист: “5 ошибок в теме Y”',
+        'Метод/фреймворк: “3 шага к результату в A”',
+        'Ответ на вопрос аудитории: “Что проверить до старта?”',
+        'Миф vs факт: “Почему X не работает”',
+        'Пост-история: “Как я пришел к подходу”',
+        'Итоги недели: “Что усвоили + чему научились”',
+        'Сравнение подходов: “X vs Y: что выбрать в вашей ситуации”',
+        'Разбор цифр: “Какие метрики важны в теме C”',
+        'FAQ для экспертов: “Топ вопросов и короткие ответы”'
+      ];
+
+      const weekStories = [
+        'Опрос + короткий Q&A',
+        'Слайд “миф vs факт”',
+        'Бэкстейдж + мини-инструкция',
+        'Окно вопросов (стикер “вопрос”)',
+        'Кадр результата + призыв сохранить пост',
+        'Тест/квиз по теме недели',
+        'Анонс тем на следующую неделю',
+        'До/после: “что меняется при правильном подходе”',
+        'Разбор возражения: “почему не получается”',
+        'Тизер: “главный вывод поста — в одной фразе”'
+      ];
+
+      const postListEl = document.getElementById('post-ideas-list');
+      const storyListEl = document.getElementById('story-ideas-list');
+      const weekPlanEl = document.getElementById('week-plan');
+
+      document.getElementById('btn-posts').addEventListener('click', () => {
+        const picks = shuffle(postIdeas).slice(0, 5);
+        postListEl.innerHTML = picks.map((p) => `<li>${p.html}<div class="tag">${p.tag}</div></li>`).join('');
+      });
+
+      document.getElementById('btn-stories').addEventListener('click', () => {
+        const picks = shuffle(storyIdeas).slice(0, 3);
+        storyListEl.innerHTML = picks.map((s) => `<li>${s.html}</li>`).join('');
+      });
+
+      document.getElementById('btn-week').addEventListener('click', () => {
+        const picksPosts = shuffle(weekPosts).slice(0, 7);
+        const picksStories = shuffle(weekStories).slice(0, 7);
+        const rows = weekPlanEl.querySelectorAll('tbody tr');
+        rows.forEach((row, idx) => {
+          // Важно: td[1] = пост, td[2] = сторис
+          row.children[1].textContent = picksPosts[idx] || '';
+          row.children[2].textContent = picksStories[idx] || '';
+        });
+      });
+    </script>
   </body>
 </html>
 
