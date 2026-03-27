@@ -66,6 +66,32 @@
         align-items: center;
         margin-bottom: 10px;
       }
+      .field {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+      .label {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+      }
+      .input {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid var(--border);
+        color: var(--text);
+        padding: 10px 12px;
+        border-radius: 12px;
+        min-width: 260px;
+        outline: none;
+      }
+      .input:focus {
+        border-color: rgba(106, 166, 255, 0.55);
+        box-shadow: 0 0 0 3px rgba(106, 166, 255, 0.18);
+      }
       .btn {
         background: rgba(106, 166, 255, 0.14);
         border: 1px solid rgba(106, 166, 255, 0.35);
@@ -145,6 +171,16 @@
       <div class="card">
         <div class="generator">
           <div class="generator-title">Интерактивный генератор</div>
+          <div class="field">
+            <span class="label">Тема/ниша</span>
+            <input
+              class="input"
+              id="topic-input"
+              type="text"
+              placeholder="Например: личный бренд, психолог, юрист, SMM..."
+              autocomplete="off"
+            />
+          </div>
           <div class="generator-actions">
             <button class="btn" type="button" id="btn-posts">Сгенерировать идеи постов (5)</button>
             <button class="btn" type="button" id="btn-stories">Сгенерировать идеи сторис (3)</button>
@@ -254,28 +290,46 @@
         return a;
       }
 
+      function getTopic() {
+        const el = document.getElementById('topic-input');
+        const raw = (el && el.value ? el.value : '').trim();
+        return raw.length ? raw : 'ваша тема';
+      }
+
+      function applyTopic(text, topic) {
+        return String(text)
+          .replaceAll('{{topic}}', topic)
+          .replaceAll('X', topic)
+          .replaceAll('Y', topic)
+          .replaceAll('Z', topic)
+          .replaceAll('A', topic)
+          .replaceAll('B', topic)
+          .replaceAll('C', topic)
+          .replaceAll('D', topic);
+      }
+
       const postIdeas = [
-        { html: '<strong>Разбор кейса:</strong> “Как мы решили проблему X и почему это сработало”', tag: 'полезно + доверие' },
-        { html: '<strong>Чек-лист:</strong> “5 ошибок, из-за которых клиенты теряют деньги/время в теме Y”', tag: 'структура + сохранения' },
-        { html: '<strong>Миф vs факт:</strong> “Почему представление Z не работает и что делать вместо него”', tag: 'контраргументы' },
-        { html: '<strong>Метод/фреймворк:</strong> “Модель из 3 шагов для результата в теме A”', tag: 'обучение' },
-        { html: '<strong>Ответ на боль аудитории:</strong> “Что спрашивать у подрядчиков/специалистов, чтобы не ошибиться”', tag: 'практика' },
-        { html: '<strong>Инструкция:</strong> “Пошаговый план: как начать в теме B за 30 минут”', tag: 'простота + действие' },
-        { html: '<strong>Сравнение:</strong> “Подход X vs Y: какой выбрать и почему”', tag: 'выбор + ясность' },
-        { html: '<strong>Разбор цифр:</strong> “Какие метрики важны в теме C и как их читать”', tag: 'цифры + экспертиза' },
-        { html: '<strong>История провала:</strong> “Что пошло не так и как мы исправили за неделю”', tag: 'честность + опыт' },
-        { html: '<strong>FAQ пост:</strong> “10 вопросов от новичков в теме D — короткие ответы”', tag: 'вовлечение' }
+        { html: '<strong>Разбор кейса:</strong> “Как мы решили проблему в теме «{{topic}}» и почему это сработало”', tag: 'полезно + доверие' },
+        { html: '<strong>Чек-лист:</strong> “5 ошибок, из-за которых люди теряют деньги/время в теме «{{topic}}»”', tag: 'структура + сохранения' },
+        { html: '<strong>Миф vs факт:</strong> “Почему распространённое убеждение про «{{topic}}» не работает и что делать вместо него”', tag: 'контраргументы' },
+        { html: '<strong>Метод/фреймворк:</strong> “Модель из 3 шагов для результата в «{{topic}}»”', tag: 'обучение' },
+        { html: '<strong>Ответ на боль аудитории:</strong> “Что спрашивать у специалиста по «{{topic}}», чтобы не ошибиться”', tag: 'практика' },
+        { html: '<strong>Инструкция:</strong> “Пошаговый план: как начать в «{{topic}}» за 30 минут”', tag: 'простота + действие' },
+        { html: '<strong>Сравнение:</strong> “Два подхода в «{{topic}}»: какой выбрать и почему”', tag: 'выбор + ясность' },
+        { html: '<strong>Разбор цифр:</strong> “Какие метрики важны в «{{topic}}» и как их читать”', tag: 'цифры + экспертиза' },
+        { html: '<strong>История провала:</strong> “Что пошло не так в «{{topic}}» и как мы исправили за неделю”', tag: 'честность + опыт' },
+        { html: '<strong>FAQ пост:</strong> “10 вопросов новичков про «{{topic}}» — короткие ответы”', tag: 'вовлечение' }
       ];
 
       const storyIdeas = [
-        { html: '<strong>Опрос:</strong> “Что актуальнее сейчас: X или Y?”' },
-        { html: '<strong>Короткий инсайт:</strong> “1 ошибка, из-за которой вы недополучаете результат (и как исправить)”' },
-        { html: '<strong>Бэкстейдж:</strong> “Как проходит ваш рабочий процесс: 3 кадра за 10 секунд”' },
-        { html: '<strong>Мини-квиз:</strong> “Угадайте: что даст максимальный эффект в теме A?”' },
-        { html: '<strong>До/после:</strong> “Как меняется результат, если сделать X правильно”' },
-        { html: '<strong>Разбор возражения:</strong> “Почему фраза ‘это не работает’ — обычно миф”' },
-        { html: '<strong>Вопрос подписчика:</strong> “Ответ на запрос: что проверить перед стартом?”' },
-        { html: '<strong>Тизер поста:</strong> “Завтра разберу тему Z — вот какой главный вывод”' }
+        { html: '<strong>Опрос:</strong> “Что актуальнее сейчас в «{{topic}}»: боль №1 или боль №2?”' },
+        { html: '<strong>Короткий инсайт:</strong> “1 ошибка в «{{topic}}», из-за которой вы недополучаете результат (и как исправить)”' },
+        { html: '<strong>Бэкстейдж:</strong> “Как выглядит мой процесс в «{{topic}}»: 3 кадра за 10 секунд”' },
+        { html: '<strong>Мини-квиз:</strong> “Угадайте: что даст максимальный эффект в «{{topic}}»?”' },
+        { html: '<strong>До/после:</strong> “Как меняется результат в «{{topic}}», если сделать один шаг правильно”' },
+        { html: '<strong>Разбор возражения:</strong> “Почему фраза ‘в «{{topic}}» это не работает’ — обычно миф”' },
+        { html: '<strong>Вопрос подписчика:</strong> “Ответ в теме «{{topic}}»: что проверить перед стартом?”' },
+        { html: '<strong>Тизер поста:</strong> “Завтра разберу «{{topic}}» — главный вывод уже готов”' }
       ];
 
       const weekPosts = [
@@ -309,23 +363,28 @@
       const weekPlanEl = document.getElementById('week-plan');
 
       document.getElementById('btn-posts').addEventListener('click', () => {
+        const topic = getTopic();
         const picks = shuffle(postIdeas).slice(0, 5);
-        postListEl.innerHTML = picks.map((p) => `<li>${p.html}<div class="tag">${p.tag}</div></li>`).join('');
+        postListEl.innerHTML = picks
+          .map((p) => `<li>${applyTopic(p.html, topic)}<div class="tag">${p.tag}</div></li>`)
+          .join('');
       });
 
       document.getElementById('btn-stories').addEventListener('click', () => {
+        const topic = getTopic();
         const picks = shuffle(storyIdeas).slice(0, 3);
-        storyListEl.innerHTML = picks.map((s) => `<li>${s.html}</li>`).join('');
+        storyListEl.innerHTML = picks.map((s) => `<li>${applyTopic(s.html, topic)}</li>`).join('');
       });
 
       document.getElementById('btn-week').addEventListener('click', () => {
+        const topic = getTopic();
         const picksPosts = shuffle(weekPosts).slice(0, 7);
         const picksStories = shuffle(weekStories).slice(0, 7);
         const rows = weekPlanEl.querySelectorAll('tbody tr');
         rows.forEach((row, idx) => {
           // Важно: td[1] = пост, td[2] = сторис
-          row.children[1].textContent = picksPosts[idx] || '';
-          row.children[2].textContent = picksStories[idx] || '';
+          row.children[1].textContent = applyTopic(picksPosts[idx] || '', topic);
+          row.children[2].textContent = applyTopic(picksStories[idx] || '', topic);
         });
       });
     </script>
