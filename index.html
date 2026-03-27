@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Генератор идей для постов</title>
+    <style>
+      :root {
+        --bg: #0b1220;
+        --card: #111b33;
+        --text: #eaf0ff;
+        --muted: #aab7e6;
+        --accent: #6aa6ff;
+        --border: rgba(255, 255, 255, 0.12);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        background: linear-gradient(180deg, #0a1020, #070b14);
+        color: var(--text);
+      }
+      .wrap {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 28px 16px 44px;
+      }
+      .header {
+        display: flex;
+        gap: 14px;
+        align-items: baseline;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+      }
+      h1 {
+        font-size: 28px;
+        margin: 0;
+        color: var(--text);
+      }
+      .sub {
+        color: var(--muted);
+        font-size: 14px;
+        margin: 0;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 18px 18px;
+      }
+      ol {
+        margin: 10px 0 0;
+        padding-left: 20px;
+      }
+      li {
+        margin: 10px 0;
+        color: var(--text);
+      }
+      .section-title {
+        font-weight: 700;
+        color: var(--accent);
+      }
+      ul {
+        margin: 8px 0 0;
+        padding-left: 20px;
+      }
+      .week {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
+      .week th,
+      .week td {
+        border: 1px solid var(--border);
+        padding: 10px 10px;
+        vertical-align: top;
+      }
+      .week th {
+        text-align: left;
+        color: var(--muted);
+        font-weight: 600;
+        background: rgba(255, 255, 255, 0.03);
+      }
+      .tag {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        color: var(--muted);
+        font-size: 12px;
+        margin-top: 4px;
+      }
+      footer {
+        margin-top: 14px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="header">
+        <h1>Генератор идей для постов</h1>
+        <p class="sub">Подготовленный контент: посты, сторис и план на неделю</p>
+      </div>
+
+      <div class="card">
+        <ol>
+          <li>
+            <div class="section-title">5 идей постов для экспертов</div>
+            <ul>
+              <li>
+                <strong>Разбор кейса:</strong> “Как мы решили проблему X и почему это сработало”
+                <div class="tag">полезно + доверие</div>
+              </li>
+              <li>
+                <strong>Чек-лист:</strong> “5 ошибок, из-за которых клиенты теряют деньги/время в теме Y”
+                <div class="tag">структура + сохранения</div>
+              </li>
+              <li>
+                <strong>Миф vs факт:</strong> “Почему представление Z не работает и что делать вместо него”
+                <div class="tag">контраргументы</div>
+              </li>
+              <li>
+                <strong>Метод/фреймворк:</strong> “Модель из 3 шагов для результата в теме A”
+                <div class="tag">обучение</div>
+              </li>
+              <li>
+                <strong>Ответ на боль аудитории:</strong> “Что спрашивать у подрядчиков/специалистов, чтобы не ошибиться”
+                <div class="tag">практика</div>
+              </li>
+            </ul>
+          </li>
+
+          <li>
+            <div class="section-title">3 идеи сторис на сегодня</div>
+            <ul>
+              <li><strong>Опрос:</strong> “Что актуальнее сейчас: X или Y?”</li>
+              <li><strong>Короткий инсайт:</strong> “1 ошибка, из-за которой вы недополучаете результат (и как исправить)”</li>
+              <li><strong>Бэкстейдж:</strong> “Как проходит ваш рабочий процесс: 3 кадра за 10 секунд”</li>
+            </ul>
+          </li>
+
+          <li>
+            <div class="section-title">Контент-план на неделю</div>
+            <table class="week" aria-label="Контент план на неделю">
+              <thead>
+                <tr>
+                  <th>День</th>
+                  <th>Пост</th>
+                  <th>Сторис</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Пн</td>
+                  <td>Пост-разбор кейса: “Путь от проблемы до результата”</td>
+                  <td>Опрос + короткий Q&amp;A</td>
+                </tr>
+                <tr>
+                  <td>Вт</td>
+                  <td>Чек-лист: “5 ошибок в теме Y”</td>
+                  <td>Слайд “миф vs факт”</td>
+                </tr>
+                <tr>
+                  <td>Ср</td>
+                  <td>Метод/фреймворк: “3 шага к результату в A”</td>
+                  <td>Бэкстейдж + мини-инструкция</td>
+                </tr>
+                <tr>
+                  <td>Чт</td>
+                  <td>Ответ на вопрос аудитории: “Что проверить до старта?”</td>
+                  <td>Окно вопросов (стикер “вопрос”)</td>
+                </tr>
+                <tr>
+                  <td>Пт</td>
+                  <td>Миф vs факт: “Почему X не работает”</td>
+                  <td>Кадр результата + призыв сохранить пост</td>
+                </tr>
+                <tr>
+                  <td>Сб</td>
+                  <td>Пост-история: “Как я пришел к подходу”</td>
+                  <td>Тест/квиз по теме недели</td>
+                </tr>
+                <tr>
+                  <td>Вс</td>
+                  <td>Итоги недели: “Что усвоили + чему научились”</td>
+                  <td>Анонс тем на следующую неделю</td>
+                </tr>
+              </tbody>
+            </table>
+          </li>
+        </ol>
+        <footer>Можно менять формулировки под вашу нишу: структура готова.</footer>
+      </div>
+    </div>
+  </body>
+</html>
+
