@@ -4,6 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Генератор идей для постов</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <style>
       :root {
         --bg: #0b1220;
@@ -11,16 +17,24 @@
         --text: #eaf0ff;
         --muted: #aab7e6;
         --accent: #6aa6ff;
+        --accent-glow: rgba(106, 166, 255, 0.35);
         --border: rgba(255, 255, 255, 0.12);
         --grad-top: #0a1020;
+        --grad-mid: #0d1528;
         --grad-bottom: #070b14;
-        --input-bg: rgba(255, 255, 255, 0.04);
-        --week-th-bg: rgba(255, 255, 255, 0.03);
+        --input-bg: rgba(255, 255, 255, 0.05);
+        --week-th-bg: rgba(255, 255, 255, 0.04);
         --btn-bg: rgba(106, 166, 255, 0.14);
         --btn-border: rgba(106, 166, 255, 0.35);
         --btn-hover: rgba(106, 166, 255, 0.22);
         --focus-border: rgba(106, 166, 255, 0.55);
         --focus-shadow: rgba(106, 166, 255, 0.18);
+        --generator-bg: rgba(255, 255, 255, 0.03);
+        --generator-border: rgba(255, 255, 255, 0.08);
+        --shadow-card: 0 28px 70px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.04);
+        --orb-a: rgba(106, 166, 255, 0.22);
+        --orb-b: rgba(168, 85, 247, 0.12);
+        --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
       }
 
       html[data-theme="light"] {
@@ -29,188 +43,660 @@
         --text: #111827;
         --muted: #4b5563;
         --accent: #2563eb;
-        --border: rgba(0, 0, 0, 0.1);
-        --grad-top: #f4f7fd;
+        --accent-glow: rgba(37, 99, 235, 0.2);
+        --border: rgba(0, 0, 0, 0.09);
+        --grad-top: #f8fafc;
+        --grad-mid: #eef2ff;
         --grad-bottom: #e8edf5;
         --input-bg: #f3f4f6;
-        --week-th-bg: rgba(0, 0, 0, 0.04);
+        --week-th-bg: rgba(37, 99, 235, 0.06);
         --btn-bg: rgba(37, 99, 235, 0.1);
-        --btn-border: rgba(37, 99, 235, 0.35);
+        --btn-border: rgba(37, 99, 235, 0.32);
         --btn-hover: rgba(37, 99, 235, 0.18);
         --focus-border: rgba(37, 99, 235, 0.55);
         --focus-shadow: rgba(37, 99, 235, 0.2);
+        --generator-bg: rgba(37, 99, 235, 0.04);
+        --generator-border: rgba(37, 99, 235, 0.12);
+        --shadow-card: 0 24px 56px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04);
+        --orb-a: rgba(37, 99, 235, 0.18);
+        --orb-b: rgba(124, 58, 237, 0.1);
       }
+
       * {
         box-sizing: border-box;
       }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      @keyframes bgShift {
+        0%,
+        100% {
+          background-position: 0% 40%;
+        }
+        50% {
+          background-position: 100% 60%;
+        }
+      }
+
+      @keyframes floatOrb {
+        0%,
+        100% {
+          transform: translate(0, 0) scale(1);
+        }
+        33% {
+          transform: translate(28px, -22px) scale(1.06);
+        }
+        66% {
+          transform: translate(-18px, 16px) scale(0.98);
+        }
+      }
+
+      @keyframes floatOrb2 {
+        0%,
+        100% {
+          transform: translate(0, 0) scale(1);
+        }
+        50% {
+          transform: translate(-32px, 28px) scale(1.04);
+        }
+      }
+
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(14px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes listIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes weekRefresh {
+        0% {
+          opacity: 1;
+          filter: brightness(1);
+        }
+        40% {
+          opacity: 0.88;
+          filter: brightness(1.06);
+        }
+        100% {
+          opacity: 1;
+          filter: brightness(1);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+        body {
+          animation: none !important;
+        }
+
+        body::before,
+        body::after {
+          animation: none !important;
+        }
+
+        .week.plan-pulse {
+          animation: none !important;
+        }
+        .enter-header,
+        .enter-card,
+        .section-block {
+          animation: none !important;
+        }
+        #post-ideas-list li,
+        #story-ideas-list li {
+          animation: none !important;
+        }
+        .week.plan-pulse tbody tr {
+          animation: none !important;
+        }
+      }
+
       body {
         margin: 0;
-        font-family: Arial, Helvetica, sans-serif;
-        background: linear-gradient(180deg, var(--grad-top), var(--grad-bottom));
+        font-family: "Outfit", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
         color: var(--text);
         min-height: 100vh;
+        line-height: 1.55;
+        background-color: var(--bg);
+        background-image: linear-gradient(
+          165deg,
+          var(--grad-top) 0%,
+          var(--grad-mid) 48%,
+          var(--grad-bottom) 100%
+        );
+        background-size: 200% 200%;
+        animation: bgShift 22s var(--ease-out) infinite;
+        transition:
+          color 0.45s var(--ease-out),
+          background-color 0.45s var(--ease-out);
       }
+
+      body::before,
+      body::after {
+        content: "";
+        position: fixed;
+        pointer-events: none;
+        z-index: 0;
+        border-radius: 50%;
+        filter: blur(80px);
+        opacity: 0.85;
+      }
+
+      body::before {
+        width: min(58vw, 520px);
+        height: min(58vw, 520px);
+        top: -12%;
+        right: -8%;
+        background: radial-gradient(circle at 30% 30%, var(--orb-a), transparent 68%);
+        animation: floatOrb 19s var(--ease-out) infinite;
+      }
+
+      body::after {
+        width: min(50vw, 420px);
+        height: min(50vw, 420px);
+        bottom: -10%;
+        left: -12%;
+        background: radial-gradient(circle at 70% 70%, var(--orb-b), transparent 70%);
+        animation: floatOrb2 24s var(--ease-out) infinite;
+      }
+
       .wrap {
+        position: relative;
+        z-index: 1;
         max-width: 980px;
         margin: 0 auto;
-        padding: 28px 16px 44px;
+        padding: 32px 18px 52px;
       }
+
       .header {
         display: flex;
-        gap: 14px;
+        gap: 18px;
         align-items: flex-start;
         justify-content: space-between;
         flex-wrap: wrap;
-        margin-bottom: 16px;
+        margin-bottom: 22px;
       }
+
+      .header.enter-header {
+        animation: fadeUp 0.75s var(--ease-out) backwards;
+      }
+
       .header-titles {
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        gap: 8px;
+        max-width: 640px;
       }
+
       .btn-theme {
         flex-shrink: 0;
         align-self: flex-start;
       }
+
       h1 {
-        font-size: 28px;
+        font-size: clamp(1.65rem, 4vw, 2.05rem);
         margin: 0;
-        color: var(--text);
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        line-height: 1.15;
+        background: linear-gradient(120deg, var(--text) 0%, var(--accent) 120%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        transition: filter 0.45s var(--ease-out);
       }
+
+      html[data-theme="light"] h1 {
+        background: linear-gradient(120deg, #0f172a 0%, var(--accent) 130%);
+        -webkit-background-clip: text;
+        background-clip: text;
+      }
+
       .sub {
         color: var(--muted);
-        font-size: 14px;
+        font-size: 0.95rem;
         margin: 0;
+        font-weight: 500;
+        max-width: 52ch;
+        transition: color 0.45s var(--ease-out);
       }
+
       .card {
         background: var(--card);
         border: 1px solid var(--border);
-        border-radius: 14px;
-        padding: 18px 18px;
+        border-radius: 22px;
+        padding: 26px 26px 28px;
+        box-shadow: var(--shadow-card);
+        transition:
+          background-color 0.45s var(--ease-out),
+          border-color 0.45s var(--ease-out),
+          box-shadow 0.45s var(--ease-out);
       }
+
+      .card.enter-card {
+        animation: fadeUp 0.8s 0.08s var(--ease-out) backwards;
+      }
+
       .generator-title {
         font-weight: 700;
+        font-size: 1.02rem;
         color: var(--accent);
-        margin-bottom: 10px;
+        margin: 0 0 14px;
+        letter-spacing: -0.01em;
+        display: flex;
+        align-items: center;
+        gap: 10px;
       }
+
+      .generator-title::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--accent);
+        box-shadow: 0 0 18px var(--accent-glow);
+      }
+
       .generator {
-        margin-bottom: 14px;
+        margin-bottom: 22px;
+        padding: 20px 20px 18px;
+        border-radius: 16px;
+        background: var(--generator-bg);
+        border: 1px solid var(--generator-border);
+        transition:
+          background 0.45s var(--ease-out),
+          border-color 0.45s var(--ease-out);
       }
+
       .generator-actions {
         display: flex;
         gap: 10px;
         flex-wrap: wrap;
         align-items: center;
-        margin-bottom: 10px;
+        margin-bottom: 12px;
       }
+
       .field {
         display: flex;
-        gap: 10px;
+        gap: 12px;
         flex-wrap: wrap;
         align-items: center;
-        margin-bottom: 10px;
+        margin-bottom: 14px;
       }
+
       .label {
         color: var(--muted);
-        font-size: 12px;
+        font-size: 0.72rem;
         font-weight: 700;
-        letter-spacing: 0.02em;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
       }
+
       .input {
+        flex: 1 1 220px;
         background: var(--input-bg);
         border: 1px solid var(--border);
         color: var(--text);
-        padding: 10px 12px;
-        border-radius: 12px;
-        min-width: 260px;
+        padding: 12px 14px;
+        border-radius: 14px;
+        min-width: 0;
+        max-width: 100%;
         outline: none;
+        font: inherit;
+        font-weight: 500;
+        transition:
+          border-color 0.25s var(--ease-out),
+          box-shadow 0.25s var(--ease-out),
+          background-color 0.45s var(--ease-out),
+          color 0.45s var(--ease-out);
       }
+
+      .input::placeholder {
+        color: var(--muted);
+        opacity: 0.75;
+      }
+
       .input:focus {
         border-color: var(--focus-border);
         box-shadow: 0 0 0 3px var(--focus-shadow);
       }
+
       .btn {
+        position: relative;
         background: var(--btn-bg);
         border: 1px solid var(--btn-border);
         color: var(--text);
-        padding: 10px 12px;
-        border-radius: 12px;
+        padding: 11px 16px;
+        border-radius: 14px;
         cursor: pointer;
-        font-weight: 700;
+        font-weight: 600;
+        font: inherit;
+        font-size: 0.9rem;
+        letter-spacing: -0.01em;
+        transition:
+          transform 0.2s var(--ease-out),
+          background-color 0.25s var(--ease-out),
+          border-color 0.25s var(--ease-out),
+          box-shadow 0.25s var(--ease-out);
       }
+
+      .btn::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        box-shadow: 0 0 0 0 var(--accent-glow);
+        opacity: 0;
+        transition: opacity 0.25s var(--ease-out);
+        pointer-events: none;
+      }
+
       .btn:hover {
         background: var(--btn-hover);
+        transform: translateY(-1px);
+        box-shadow: 0 10px 26px rgba(0, 0, 0, 0.12);
       }
+
+      .btn:hover::after {
+        opacity: 0.35;
+      }
+
+      html:not([data-theme="light"]) .btn:hover {
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+      }
+
       .btn:active {
-        transform: translateY(1px);
+        transform: translateY(0);
       }
+
+      .btn-ghost {
+        background: transparent;
+        border-color: var(--border);
+        font-weight: 600;
+      }
+
+      .btn-ghost:hover {
+        background: var(--generator-bg);
+        border-color: var(--btn-border);
+      }
+
       .hint {
         margin: 0;
         color: var(--muted);
-        font-size: 12px;
+        font-size: 0.82rem;
+        font-weight: 500;
+        max-width: 70ch;
       }
-      ol {
-        margin: 10px 0 0;
-        padding-left: 20px;
+
+      .content-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        counter-reset: section;
       }
-      li {
-        margin: 10px 0;
-        color: var(--text);
+
+      .content-list > li {
+        margin: 0;
+        padding: 22px 0;
+        border-bottom: 1px solid var(--border);
+        counter-increment: section;
+        transition: border-color 0.45s var(--ease-out);
       }
+
+      .content-list > li:first-child {
+        padding-top: 4px;
+      }
+
+      .content-list > li:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+      }
+
+      .section-block {
+        margin: 0;
+        animation: fadeUp 0.65s var(--ease-out) backwards;
+      }
+
+      .content-list > li:nth-child(1) .section-block {
+        animation-delay: 0.18s;
+      }
+
+      .content-list > li:nth-child(2) .section-block {
+        animation-delay: 0.26s;
+      }
+
+      .content-list > li:nth-child(3) .section-block {
+        animation-delay: 0.34s;
+      }
+
       .section-title {
         font-weight: 700;
+        font-size: 1.05rem;
+        color: var(--text);
+        margin: 0 0 12px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        letter-spacing: -0.02em;
+      }
+
+      .section-title::before {
+        content: counter(section, decimal-leading-zero);
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
         color: var(--accent);
+        background: var(--btn-bg);
+        border: 1px solid var(--btn-border);
+        padding: 5px 9px;
+        border-radius: 999px;
       }
-      ul {
-        margin: 8px 0 0;
-        padding-left: 20px;
+
+      .nested-list {
+        margin: 0;
+        padding-left: 0;
+        list-style: none;
       }
+
+      .nested-list li {
+        position: relative;
+        margin: 0 0 12px;
+        padding-left: 18px;
+        color: var(--text);
+      }
+
+      .nested-list li:last-child {
+        margin-bottom: 0;
+      }
+
+      .nested-list li::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0.55em;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--accent);
+        opacity: 0.55;
+      }
+
+      #post-ideas-list li,
+      #story-ideas-list li {
+        animation: listIn 0.55s var(--ease-out) backwards;
+      }
+
+      #post-ideas-list li:nth-child(1) {
+        animation-delay: 0.04s;
+      }
+      #post-ideas-list li:nth-child(2) {
+        animation-delay: 0.1s;
+      }
+      #post-ideas-list li:nth-child(3) {
+        animation-delay: 0.16s;
+      }
+      #post-ideas-list li:nth-child(4) {
+        animation-delay: 0.22s;
+      }
+      #post-ideas-list li:nth-child(5) {
+        animation-delay: 0.28s;
+      }
+
+      #story-ideas-list li:nth-child(1) {
+        animation-delay: 0.05s;
+      }
+      #story-ideas-list li:nth-child(2) {
+        animation-delay: 0.12s;
+      }
+      #story-ideas-list li:nth-child(3) {
+        animation-delay: 0.18s;
+      }
+
+      .table-wrap {
+        margin-top: 12px;
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid var(--border);
+        transition: border-color 0.45s var(--ease-out);
+      }
+
       .week {
         width: 100%;
         border-collapse: collapse;
-        margin-top: 10px;
+        margin: 0;
       }
+
+      .week.plan-pulse {
+        animation: weekRefresh 0.55s var(--ease-out);
+      }
+
       .week th,
       .week td {
-        border: 1px solid var(--border);
-        padding: 10px 10px;
+        border: none;
+        border-bottom: 1px solid var(--border);
+        padding: 13px 14px;
         vertical-align: top;
+        transition: border-color 0.45s var(--ease-out);
       }
+
+      .week tbody tr:last-child td {
+        border-bottom: none;
+      }
+
+      .week tbody tr {
+        transition: background-color 0.2s var(--ease-out);
+      }
+
+      .week.plan-pulse tbody tr {
+        animation: listIn 0.45s var(--ease-out) backwards;
+      }
+
+      .week.plan-pulse tbody tr:nth-child(1) {
+        animation-delay: 0.02s;
+      }
+      .week.plan-pulse tbody tr:nth-child(2) {
+        animation-delay: 0.05s;
+      }
+      .week.plan-pulse tbody tr:nth-child(3) {
+        animation-delay: 0.08s;
+      }
+      .week.plan-pulse tbody tr:nth-child(4) {
+        animation-delay: 0.11s;
+      }
+      .week.plan-pulse tbody tr:nth-child(5) {
+        animation-delay: 0.14s;
+      }
+      .week.plan-pulse tbody tr:nth-child(6) {
+        animation-delay: 0.17s;
+      }
+      .week.plan-pulse tbody tr:nth-child(7) {
+        animation-delay: 0.2s;
+      }
+
+      .week tbody tr:hover {
+        background: var(--generator-bg);
+      }
+
       .week th {
         text-align: left;
         color: var(--muted);
         font-weight: 600;
+        font-size: 0.78rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
         background: var(--week-th-bg);
       }
+
+      .week td:first-child {
+        font-weight: 600;
+        color: var(--accent);
+        white-space: nowrap;
+        width: 3rem;
+      }
+
       .tag {
         display: inline-block;
-        padding: 3px 8px;
+        padding: 4px 10px;
         border-radius: 999px;
         border: 1px solid var(--border);
         color: var(--muted);
-        font-size: 12px;
-        margin-top: 4px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        margin-top: 8px;
+        letter-spacing: 0.02em;
+        transition:
+          border-color 0.45s var(--ease-out),
+          color 0.45s var(--ease-out);
       }
+
       footer {
-        margin-top: 14px;
+        margin-top: 20px;
+        padding-top: 16px;
+        border-top: 1px solid var(--border);
         color: var(--muted);
-        font-size: 12px;
+        font-size: 0.82rem;
+        font-weight: 500;
+        transition: border-color 0.45s var(--ease-out);
       }
     </style>
   </head>
   <body>
     <div class="wrap">
-      <div class="header">
+      <div class="header enter-header">
         <div class="header-titles">
           <h1>Генератор идей для постов</h1>
           <p class="sub">Подготовленный контент: посты, сторис и план на неделю</p>
         </div>
-        <button class="btn btn-theme" type="button" id="theme-toggle" aria-label="Переключить светлую и тёмную тему">
+        <button
+          class="btn btn-theme btn-ghost"
+          type="button"
+          id="theme-toggle"
+          aria-label="Переключить светлую и тёмную тему"
+        >
           Светлая тема
         </button>
       </div>
 
-      <div class="card">
+      <div class="card enter-card">
         <div class="generator">
           <div class="generator-title">Интерактивный генератор</div>
           <div class="field">
@@ -231,90 +717,100 @@
           <p class="hint">Идеи подставляются случайно из набора шаблонов. Формулировки можно потом подстроить под нишу.</p>
         </div>
 
-        <ol>
+        <ol class="content-list">
           <li>
-            <div class="section-title">5 идей постов для экспертов</div>
-            <ul id="post-ideas-list">
-              <li>
-                <strong>Разбор кейса:</strong> “Как мы решили проблему X и почему это сработало”
-                <div class="tag">полезно + доверие</div>
-              </li>
-              <li>
-                <strong>Чек-лист:</strong> “5 ошибок, из-за которых клиенты теряют деньги/время в теме Y”
-                <div class="tag">структура + сохранения</div>
-              </li>
-              <li>
-                <strong>Миф vs факт:</strong> “Почему представление Z не работает и что делать вместо него”
-                <div class="tag">контраргументы</div>
-              </li>
-              <li>
-                <strong>Метод/фреймворк:</strong> “Модель из 3 шагов для результата в теме A”
-                <div class="tag">обучение</div>
-              </li>
-              <li>
-                <strong>Ответ на боль аудитории:</strong> “Что спрашивать у подрядчиков/специалистов, чтобы не ошибиться”
-                <div class="tag">практика</div>
-              </li>
-            </ul>
+            <div class="section-block">
+              <div class="section-title">5 идей постов для экспертов</div>
+              <ul class="nested-list" id="post-ideas-list">
+                <li>
+                  <strong>Разбор кейса:</strong> “Как мы решили проблему X и почему это сработало”
+                  <div class="tag">полезно + доверие</div>
+                </li>
+                <li>
+                  <strong>Чек-лист:</strong> “5 ошибок, из-за которых клиенты теряют деньги/время в теме Y”
+                  <div class="tag">структура + сохранения</div>
+                </li>
+                <li>
+                  <strong>Миф vs факт:</strong> “Почему представление Z не работает и что делать вместо него”
+                  <div class="tag">контраргументы</div>
+                </li>
+                <li>
+                  <strong>Метод/фреймворк:</strong> “Модель из 3 шагов для результата в теме A”
+                  <div class="tag">обучение</div>
+                </li>
+                <li>
+                  <strong>Ответ на боль аудитории:</strong> “Что спрашивать у подрядчиков/специалистов, чтобы не ошибиться”
+                  <div class="tag">практика</div>
+                </li>
+              </ul>
+            </div>
           </li>
 
           <li>
-            <div class="section-title">3 идеи сторис на сегодня</div>
-            <ul id="story-ideas-list">
-              <li><strong>Опрос:</strong> “Что актуальнее сейчас: X или Y?”</li>
-              <li><strong>Короткий инсайт:</strong> “1 ошибка, из-за которой вы недополучаете результат (и как исправить)”</li>
-              <li><strong>Бэкстейдж:</strong> “Как проходит ваш рабочий процесс: 3 кадра за 10 секунд”</li>
-            </ul>
+            <div class="section-block">
+              <div class="section-title">3 идеи сторис на сегодня</div>
+              <ul class="nested-list" id="story-ideas-list">
+                <li><strong>Опрос:</strong> “Что актуальнее сейчас: X или Y?”</li>
+                <li>
+                  <strong>Короткий инсайт:</strong> “1 ошибка, из-за которой вы недополучаете результат (и как исправить)”
+                </li>
+                <li><strong>Бэкстейдж:</strong> “Как проходит ваш рабочий процесс: 3 кадра за 10 секунд”</li>
+              </ul>
+            </div>
           </li>
 
           <li>
-            <div class="section-title">Контент-план на неделю</div>
-            <table class="week" id="week-plan" aria-label="Контент план на неделю">
-              <thead>
-                <tr>
-                  <th>День</th>
-                  <th>Пост</th>
-                  <th>Сторис</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Пн</td>
-                  <td>Пост-разбор кейса: “Путь от проблемы до результата”</td>
-                  <td>Опрос + короткий Q&amp;A</td>
-                </tr>
-                <tr>
-                  <td>Вт</td>
-                  <td>Чек-лист: “5 ошибок в теме Y”</td>
-                  <td>Слайд “миф vs факт”</td>
-                </tr>
-                <tr>
-                  <td>Ср</td>
-                  <td>Метод/фреймворк: “3 шага к результату в A”</td>
-                  <td>Бэкстейдж + мини-инструкция</td>
-                </tr>
-                <tr>
-                  <td>Чт</td>
-                  <td>Ответ на вопрос аудитории: “Что проверить до старта?”</td>
-                  <td>Окно вопросов (стикер “вопрос”)</td>
-                </tr>
-                <tr>
-                  <td>Пт</td>
-                  <td>Миф vs факт: “Почему X не работает”</td>
-                  <td>Кадр результата + призыв сохранить пост</td>
-                </tr>
-                <tr>
-                  <td>Сб</td>
-                  <td>Пост-история: “Как я пришел к подходу”</td>
-                  <td>Тест/квиз по теме недели</td>
-                </tr>
-                <tr>
-                  <td>Вс</td>
-                  <td>Итоги недели: “Что усвоили + чему научились”</td>
-                  <td>Анонс тем на следующую неделю</td>
-                </tr>
-              </tbody>
-            </table>
+            <div class="section-block">
+              <div class="section-title">Контент-план на неделю</div>
+              <div class="table-wrap">
+                <table class="week" id="week-plan" aria-label="Контент план на неделю">
+                  <thead>
+                    <tr>
+                      <th>День</th>
+                      <th>Пост</th>
+                      <th>Сторис</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Пн</td>
+                      <td>Пост-разбор кейса: “Путь от проблемы до результата”</td>
+                      <td>Опрос + короткий Q&amp;A</td>
+                    </tr>
+                    <tr>
+                      <td>Вт</td>
+                      <td>Чек-лист: “5 ошибок в теме Y”</td>
+                      <td>Слайд “миф vs факт”</td>
+                    </tr>
+                    <tr>
+                      <td>Ср</td>
+                      <td>Метод/фреймворк: “3 шага к результату в A”</td>
+                      <td>Бэкстейдж + мини-инструкция</td>
+                    </tr>
+                    <tr>
+                      <td>Чт</td>
+                      <td>Ответ на вопрос аудитории: “Что проверить до старта?”</td>
+                      <td>Окно вопросов (стикер “вопрос”)</td>
+                    </tr>
+                    <tr>
+                      <td>Пт</td>
+                      <td>Миф vs факт: “Почему X не работает”</td>
+                      <td>Кадр результата + призыв сохранить пост</td>
+                    </tr>
+                    <tr>
+                      <td>Сб</td>
+                      <td>Пост-история: “Как я пришел к подходу”</td>
+                      <td>Тест/квиз по теме недели</td>
+                    </tr>
+                    <tr>
+                      <td>Вс</td>
+                      <td>Итоги недели: “Что усвоили + чему научились”</td>
+                      <td>Анонс тем на следующую неделю</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </li>
         </ol>
         <footer>Можно менять формулировки под вашу нишу: структура готова.</footer>
@@ -454,12 +950,15 @@
         const topic = getTopic();
         const picksPosts = shuffle(weekPosts).slice(0, 7);
         const picksStories = shuffle(weekStories).slice(0, 7);
+        weekPlanEl.classList.remove('plan-pulse');
+        void weekPlanEl.offsetWidth;
         const rows = weekPlanEl.querySelectorAll('tbody tr');
         rows.forEach((row, idx) => {
           // Важно: td[1] = пост, td[2] = сторис
           row.children[1].textContent = applyTopic(picksPosts[idx] || '', topic);
           row.children[2].textContent = applyTopic(picksStories[idx] || '', topic);
         });
+        weekPlanEl.classList.add('plan-pulse');
       });
     </script>
   </body>
